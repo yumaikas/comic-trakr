@@ -8,7 +8,7 @@ if not BIND_LOCAL_ONLY:
   bindAddr = "0.0.0.0"
 
 settings:
-  port = nativesockets.Port(comicsFrameConfig.PORT)
+  port = nativesockets.Port(appConfig.PORT)
   bindAddr = bindAddr
 
 proc darthsAndDroidsAddr(id: int): string =

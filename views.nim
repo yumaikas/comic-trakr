@@ -64,5 +64,7 @@ proc frameForAddr*(address: string): string =
   return pageBase(`div`(
     a(href="/dec", "Back"),
     a(href="/inc", "Forward"),
-    iframe(src=address)
+    iframe(src=address),
+    a(href="/dec", "Back"),
+    a(href="/inc", "Forward")
   ))
