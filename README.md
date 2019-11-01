@@ -8,4 +8,18 @@ PRs welcome, and this is the rare example of a tool that you might need to load 
 
 I don't think it'll ever work for homestuck, and I'm certainly not interested in making do so.
 
+## Building/Running
 
+After installing Nim, build by running 
+
+```
+nim c comicTrakr
+```
+
+Then you can run by using some variation of the following:
+
+```
+PORT=8080 ./comicTrakr
+```
+
+Which will run the website on port 8080.
