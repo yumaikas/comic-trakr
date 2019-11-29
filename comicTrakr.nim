@@ -1,45 +1,44 @@
-import strformat, strutils
+import os
+import strformat, strutils, locks
 import jester
-import appConfig, views
+import appConfig, views, trakrUrls
 from nativesockets import Port
 
 var bindAddr = "localhost"
+var fileLock: Lock
+
 if not BIND_LOCAL_ONLY:
   bindAddr = "0.0.0.0"
+
+initLock(fileLock)
 
 settings:
   port = nativesockets.Port(appConfig.PORT)
   bindAddr = bindAddr
 
-proc darthsAndDroidsAddr(id: int): string =
-  return fmt"http://darthsanddroids.net/episodes/{id:04}.html"
+proc getComicId(): int =
+  withLock(fileLock):
+    result = open("location.int").readAll().parseInt()
+
+proc setComicId(newVal: int) =
+  withLock(fileLock):
+    writeFile("location.int", $newVal)
+
+try:
+  discard getComicId()
+except:
+  setComicId(1)
 
 routes:
   get "/":
-    var comicId = 1
-    if not request.cookies.hasKey("comicId"):
-      setCookie("comicId", $comicId)
-    else:
-      comicId = parseInt(request.cookies["comicId"])
-    resp frameForAddr(darthsAndDroidsAddr(comicId))
+    resp frameForAddr(darthsAndDroidsAddr(getComicId()))
 
   get "/inc":
-    if not request.cookies.hasKey("comicId"):
-      setCookie("comicId", $1)
-    else:
-      var comicId = parseInt(request.cookies["comicId"])
-      # We don't have an upper bound
-      comicId = comicId + 1
-      setCookie("comicId", $comicId)
+    setComicId(getComicId() + 1)
     redirect("/")
   get "/dec":
-    if not request.cookies.hasKey("comicId"):
-      setCookie("comicId", $1)
-    else:
-      var comicId = parseInt(request.cookies["comicId"])
-      # Keep from going below 1
-      comicId = max(1, comicId - 1)
-      setCookie("comicId", $comicId)
+    var comicId = getComicId()
+    # Keep from going below 1
+    comicId = max(1, comicId - 1)
     redirect("/")
     
-
